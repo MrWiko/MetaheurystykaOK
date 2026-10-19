@@ -94,6 +94,13 @@ analyze: run $(TARGET)
 	python .\charts\createGraphs.py
     # komendy, aby odpalić tę analizę wykresów.
 
+# Compile and run a single source file: make run_single FILE=projekt
+run_single: check_mode
+	@$(call MKDIR, $(TARGET_DIR))
+	$(CXX) $(CXXFLAGS) -D $(MODE) $(SRC_DIR)/$(FILE).cpp -o $(TARGET_DIR)/$(FILE)$(EXE)
+	@echo Running $(FILE)...
+	./$(TARGET_DIR)/$(FILE)$(EXE)
+
 # Clean target removes all generated files
 clean:
 	@echo Cleaning...
