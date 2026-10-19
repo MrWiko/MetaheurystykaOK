@@ -1,0 +1,76 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "(gdb) Launch Debug",
+            "type": "cppdbg",
+            "request": "launch",
+            // Ścieżka do pliku wynikowego, który tworzy Twój Makefile
+            "program": "${workspaceFolder}/target/DEBUG/main",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            // To musi być identyczne z "label" w Twoim tasks.json!
+            "preLaunchTask": "Build Debug with Makefile",
+            "miDebuggerPath": "/usr/bin/gdb",
+            "linux": {
+                "miDebuggerPath": "/usr/bin/gdb"
+            },
+            "osx": {
+                "miDebuggerPath": "/usr/local/bin/gdb"
+            },
+            "windows": {
+                "program": "${workspaceFolder}/target/DEBUG/main.exe",
+                "miDebuggerPath": "gdb.exe"
+            }
+        },
+              {
+            "name": "(gdb) Launch Release",
+            "type": "cppdbg",
+            "request": "launch",
+            // Ścieżka do pliku wynikowego, który tworzy Twój Makefile
+            "program": "${workspaceFolder}/target/RELEASE/main",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            // To musi być identyczne z "label" w Twoim tasks.json!
+            "preLaunchTask": "Build Release with Makefile",
+            "miDebuggerPath": "/usr/bin/gdb",
+            "linux": {
+                "miDebuggerPath": "/usr/bin/gdb"
+            },
+            "osx": {
+                "miDebuggerPath": "/usr/local/bin/gdb"
+            },
+            "windows": {
+                "program": "${workspaceFolder}/target/RELEASE/main.exe",
+                "miDebuggerPath": "gdb.exe"
+            }
+        }
+        
+
+    ]
+}

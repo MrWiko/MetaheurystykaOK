@@ -1,0 +1,27 @@
+{
+    "tasks": [
+        {
+            "label": "Build Debug with Makefile",
+            "type": "shell",
+            "command": "make",
+            "args": [ ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": ["$gcc"]
+        },
+        {
+            "label": "Build Release with Makefile",
+            "type": "shell",
+            "command": "make MODE=RELEASE",
+            "args": [ ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": ["$gcc"]
+        }
+    ],
+    "version": "2.0.0"
+}
