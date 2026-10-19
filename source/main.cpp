@@ -1,5 +1,4 @@
 #include <iostream>
-#include "graph.h"
 #include "message.h"
 #include "menu.h"
 
@@ -11,8 +10,6 @@ int main(int argc, char** argv) {
 
     message msg;
     Menu menu(msg);
-    
-    msg.getInputArgs(argc, argv);
 
     while (menu.processIO());
 
