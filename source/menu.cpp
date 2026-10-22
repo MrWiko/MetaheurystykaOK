@@ -1,11 +1,16 @@
 #include "menu.h"
+#include <algorithm>
+#include <iomanip>
+#include <sstream>
+#include <map>
 
 const std::string HELP_MESSAGE = "Dostepne komendy:\n"
                              "Exit - Wyjscie z programu\n"
                              "Pomoc - Wyswietl liste komend\n"
                              "Wczytaj - Wczytaj dane problemu Pcmax z klawiatury\n"
                              "Wyswietl - Wyswietl aktualne dane\n"
-                             "Zachlanny - Uruchom algorytm zachlanny dla Pcmax\n"; 
+                             "Zachlanny - Uruchom algorytm zachlanny dla Pcmax\n"
+                             "Wizualizuj - Wyswietl graficzna wizualizacje ostatniego wyniku\n"; 
 
 Menu::Menu(message& msg){
     #ifdef DEBUG
@@ -109,6 +114,9 @@ int Menu::processIO() {
     else if (actionToken.token == "Zachlanny") {
         uruchomZachlanny();
     }
+    else if (actionToken.token == "Wizualizuj") {
+        wizualizujWynik();
+    }
     else {
         std::cout<<"Nieznana komenda. Wpisz 'Help' aby zobaczyc liste komend."<<std::endl;
     }
@@ -160,6 +168,10 @@ void Menu::uruchomZachlanny() {
     // Wywołanie algorytmu zachłannego z namespace algosPcmax
     algosPcmax::Wynik wynik = algosPcmax::zachlanny(m, p);
 
+    // Zapisanie wyniku do wizualizacji
+    ostatniWynik = wynik;
+    maWynik = true;
+
     // Wyświetlenie wyników
     std::cout << "\n=== Wynik algorytmu zachlannego ===" << std::endl;
     std::cout << "Cmax (makespan): " << wynik.cmax << std::endl;
@@ -173,4 +185,162 @@ void Menu::uruchomZachlanny() {
                   << ") -> Maszyna " << wynik.przydzial_zadan[i] + 1 << std::endl;
     }
     std::cout << "==================================\n" << std::endl;
+}
+
+// Wizualizacja wyniku jako wykres Gantta w terminalu
+void Menu::wizualizujWynik() {
+    if (!maWynik) {
+        std::cout << "Brak wyniku do wizualizacji. Najpierw uruchom algorytm (np. 'Zachlanny')." << std::endl;
+        return;
+    }
+
+    // Zbierz zadania dla każdej maszyny z ich pozycjami czasowymi
+    // Struktura: maszyna -> lista (start, czas, numer_zadania)
+    struct ZadanieNaMaszynie {
+        int start;
+        int czas;
+        int numer; // numer zadania (1-indexed)
+    };
+
+    std::vector<std::vector<ZadanieNaMaszynie>> maszyny(m);
+
+    // Odtwórz harmonogram: zadania przydzielane w kolejności, kumulując czas
+    std::vector<int> aktualny_czas(m, 0);
+    for (size_t i = 0; i < p.size(); i++) {
+        int masz = ostatniWynik.przydzial_zadan[i];
+        ZadanieNaMaszynie z;
+        z.start = aktualny_czas[masz];
+        z.czas = p[i];
+        z.numer = i + 1;
+        maszyny[masz].push_back(z);
+        aktualny_czas[masz] += p[i];
+    }
+
+    int cmax = ostatniWynik.cmax;
+    if (cmax == 0) {
+        std::cout << "Cmax = 0, brak czego wizualizowac." << std::endl;
+        return;
+    }
+
+    // Szerokość wykresu w znakach (dopasowanie do terminala)
+    const int SZEROKOSC = 60;
+
+    // Kolory ANSI do rozróżniania zadań
+    const std::string kolory[] = {
+        "\033[41m", // czerwony
+        "\033[42m", // zielony
+        "\033[43m", // żółty
+        "\033[44m", // niebieski
+        "\033[45m", // magenta
+        "\033[46m", // cyjan
+        "\033[47m", // biały
+        "\033[100m", // jasny czarny
+        "\033[101m", // jasny czerwony
+        "\033[102m", // jasny zielony
+        "\033[103m", // jasny żółty
+        "\033[104m", // jasny niebieski
+    };
+    const std::string reset = "\033[0m";
+    const int LICZBA_KOLOROW = 12;
+
+    std::cout << "\n╔══════════════════════════════════════════════════════════════════════╗" << std::endl;
+    std::cout << "║             WYKRES GANTTA - WIZUALIZACJA ROZWIAZANIA                ║" << std::endl;
+    std::cout << "╚══════════════════════════════════════════════════════════════════════╝\n" << std::endl;
+
+    // Etykieta osi czasu (nagłówek)
+    std::cout << "            ";
+    // Oś czasu: oznaczenia co ~10 znaków
+    for (int i = 0; i <= SZEROKOSC; i += 10) {
+        int wartosc = (int)((double)i / SZEROKOSC * cmax);
+        std::string label = std::to_string(wartosc);
+        std::cout << label;
+        // Dopełnij spacjami do 10 znaków
+        int padding = 10 - (int)label.length();
+        if (i + 10 <= SZEROKOSC) {
+            for (int s = 0; s < padding; s++) std::cout << " ";
+        }
+    }
+    std::cout << std::endl;
+
+    // Linia górna
+    std::cout << "            ┌";
+    for (int i = 0; i < SZEROKOSC; i++) std::cout << "─";
+    std::cout << "┐" << std::endl;
+
+    // Rysowanie paska dla każdej maszyny
+    for (int i = 0; i < m; i++) {
+        // Etykieta maszyny
+        std::ostringstream label;
+        label << " Maszyna " << std::setw(2) << (i + 1) << " │";
+        std::cout << label.str();
+
+        // Tworzenie paska znakowego
+        std::vector<std::string> pasek(SZEROKOSC, " ");
+        std::vector<std::string> kolor_pasek(SZEROKOSC, "");
+        std::vector<std::string> reset_pasek(SZEROKOSC, "");
+
+        for (const auto& z : maszyny[i]) {
+            int start_col = (int)((double)z.start / cmax * SZEROKOSC);
+            int end_col = (int)((double)(z.start + z.czas) / cmax * SZEROKOSC);
+            if (end_col > SZEROKOSC) end_col = SZEROKOSC;
+            if (start_col >= SZEROKOSC) continue;
+
+            std::string kolor = kolory[(z.numer - 1) % LICZBA_KOLOROW];
+
+            // Etykieta zadania do wpisania w pasek
+            std::string etykieta = "Z" + std::to_string(z.numer);
+            int srodek = (start_col + end_col) / 2 - (int)etykieta.length() / 2;
+
+            for (int c = start_col; c < end_col; c++) {
+                kolor_pasek[c] = kolor;
+                reset_pasek[c] = reset;
+
+                // Wstaw etykietę na środku bloku
+                int pos_in_label = c - srodek;
+                if (pos_in_label >= 0 && pos_in_label < (int)etykieta.length()) {
+                    pasek[c] = std::string(1, etykieta[pos_in_label]);
+                } else {
+                    pasek[c] = "░";
+                }
+            }
+        }
+
+        // Wypisz pasek
+        for (int c = 0; c < SZEROKOSC; c++) {
+            std::cout << kolor_pasek[c] << pasek[c] << reset_pasek[c];
+        }
+        std::cout << "│ " << ostatniWynik.czas_pracy[i] << std::endl;
+    }
+
+    // Linia dolna
+    std::cout << "            └";
+    for (int i = 0; i < SZEROKOSC; i++) std::cout << "─";
+    std::cout << "┘" << std::endl;
+
+    // Oś czasu (powtórzona na dole)
+    std::cout << "            ";
+    for (int i = 0; i <= SZEROKOSC; i += 10) {
+        int wartosc = (int)((double)i / SZEROKOSC * cmax);
+        std::string lab = std::to_string(wartosc);
+        std::cout << lab;
+        int padding = 10 - (int)lab.length();
+        if (i + 10 <= SZEROKOSC) {
+            for (int s = 0; s < padding; s++) std::cout << " ";
+        }
+    }
+    std::cout << std::endl;
+
+    // Legenda
+    std::cout << "\n  Legenda: ";
+    for (size_t i = 0; i < p.size(); i++) {
+        std::string kolor = kolory[i % LICZBA_KOLOROW];
+        std::cout << kolor << " Z" << (i + 1) << "=" << p[i] << " " << reset << " ";
+        if ((i + 1) % 8 == 0 && i + 1 < p.size()) {
+            std::cout << "\n           ";
+        }
+    }
+    std::cout << std::endl;
+
+    std::cout << "\n  Cmax (makespan) = " << ostatniWynik.cmax << std::endl;
+    std::cout << std::endl;
 }

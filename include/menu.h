@@ -16,10 +16,15 @@ class Menu {
         int m = 0;                 // liczba maszyn / procesorów
         std::vector<int> p;        // wektor czasów zadań
 
+        // Ostatni wynik algorytmu
+        algosPcmax::Wynik ostatniWynik;
+        bool maWynik = false;      // czy jest zapisany wynik do wizualizacji
+
         // Metody pomocnicze
         void wczytajDane();        // wczytywanie danych z klawiatury
         void wyswietlDane();       // wyświetlanie aktualnych danych
         void uruchomZachlanny();   // uruchomienie algorytmu zachłannego
+        void wizualizujWynik();    // wizualizacja wyniku jako wykres Gantta w terminalu
 
     public:
         Menu(message& msg);
