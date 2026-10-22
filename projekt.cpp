@@ -1,15 +1,32 @@
 #include <iostream>
 #include <algorithm>
+#include <fstream>
+#include <vector>
 
 
 int main(){
-    int m = 5; // liczba procesorow / maszyn
-    int n = 9; // liczba procesow / zadan do wykonania
-    int p[] = {1,2,3,4,3,6,7,10,3}; // wektor czasu zadan
+    int m; // liczba procesorow / maszyn
+    int n; // liczba procesow / zadan do wykonania
+    int Cmax = 0;
+    std::vector<int> p; // wektor czasu zadan
     
-    int czas_pracy[m];
-    int indeksy_procesow[n];
+    std::ifstream plik("dane.txt");
 
+    plik >> m;
+    
+    int nowe_zadanie;
+    
+    while(plik >> nowe_zadanie){
+        p.push_back(nowe_zadanie);
+    }
+
+    plik.close();
+    n = p.size();
+
+    std::vector<int> czas_pracy(m,0);
+    std::vector<int> indeksy_procesow(n,0);
+
+    /*
     for(int i = 0; i < m; i++){
         czas_pracy[i] = 0;
     }
@@ -17,11 +34,11 @@ int main(){
     for(int i = 0; i < n; i++){
         indeksy_procesow[i] = 0;
     }
-
+    */
     
     for(int i = 0; i < n; i++){
 
-    int minimalna_wartosc = 100;
+    int minimalna_wartosc = INT_MAX;
     int minimalny_indeks;
 
     for(int j = 0; j < m; j++){
@@ -37,8 +54,12 @@ int main(){
 
 
     for(int i = 0; i < m; i++){
-        std::cout << czas_pracy[i] << '\n';
+        std::cout << "Czas pracy " << i + 1 << "-tego procesora: " << czas_pracy[i] << '\n';
+        if(czas_pracy[i] > Cmax){
+            Cmax = czas_pracy[i];
+        }
     }
     
+    std::cout << '\n' << "Czas Cmax = " << Cmax << '\n';
     return 0;
     }
