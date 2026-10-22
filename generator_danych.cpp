@@ -3,9 +3,16 @@
 
 int main()
 {
- int m = 5;
- int n = 9;
+ int m;
+ int n;
  int p[n];
+
+ std::cout<<"Podaj liczbe procesorow: ";
+ std::cin>>m;
+
+ std::cout<<"Podaj liczbe procesow: ";
+ std::cin>>n;
+
  std::ofstream plik("dane.txt");
  plik << m << std::endl;
 

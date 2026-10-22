@@ -1,6 +1,7 @@
 #include <iostream>
 #include <algorithm>
 
+
 int main(){
     int m = 5; // liczba procesorow / maszyn
     int n = 9; // liczba procesow / zadan do wykonania
