@@ -1,11 +1,12 @@
 #include <iostream>
 #include <fstream>
+#include <vector>
 
 int main()
 {
  int m;
  int n;
- int p[n];
+ std::vector<int> p;
 
  std::cout<<"Podaj liczbe procesorow: ";
  std::cin>>m;
@@ -13,7 +14,9 @@ int main()
  std::cout<<"Podaj liczbe procesow: ";
  std::cin>>n;
 
- std::ofstream plik("dane.txt");
+ p.resize(n);
+
+ std::ofstream plik("dane1.txt");
  plik << m << std::endl;
 
  for(int i = 0; i < n; i++){
@@ -21,7 +24,7 @@ int main()
   std::cin >> p[i];
   plik << p[i] << std::endl;
  }
- 
+ plik.close();
+
  return 0;
- 
 }

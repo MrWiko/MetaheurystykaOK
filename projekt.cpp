@@ -10,7 +10,7 @@ int main(){
     int Cmax = 0;
     std::vector<int> p; // wektor czasu zadan
     
-    std::ifstream plik("dane.txt");
+    std::ifstream plik("dane20.txt");
 
     plik >> m;
     
