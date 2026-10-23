@@ -3,11 +3,13 @@
 #include <iomanip>
 #include <sstream>
 #include <map>
+#include <random>
 
 const std::string HELP_MESSAGE = "Dostepne komendy:\n"
                              "Exit - Wyjscie z programu\n"
                              "Pomoc - Wyswietl liste komend\n"
                              "Wczytaj - Wczytaj dane problemu Pcmax z klawiatury\n"
+                             "Generuj - Wygeneruj losowa instancje problemu Pcmax\n"
                              "Wyswietl - Wyswietl aktualne dane\n"
                              "Zachlanny - Uruchom algorytm zachlanny dla Pcmax\n"
                              "Wizualizuj - Wyswietl graficzna wizualizacje ostatniego wyniku\n"; 
@@ -108,6 +110,9 @@ int Menu::processIO() {
     else if (actionToken.token == "Wczytaj") {
         wczytajDane();
     }
+    else if (actionToken.token == "Generuj") {
+        generujDane();
+    }
     else if (actionToken.token == "Wyswietl") {
         wyswietlDane();
     }
@@ -141,6 +146,29 @@ void Menu::wczytajDane() {
     std::cout << "Dane zostaly wczytane pomyslnie." << std::endl;
 }
 
+// Generowanie losowej instancji problemu Pcmax
+void Menu::generujDane() {
+    m = InputNumData("Podaj liczbe maszyn (m)", 0, 1000000, 0);
+    int n = InputNumData("Podaj liczbe zadan (n)", 0, 1000000, 0);
+    int pmin = InputNumData("Minimalny czas zadania", 0, 1000000, 0);
+    int pmax = InputNumData("Maksymalny czas zadania", pmin - 1, 1000000, pmin - 1);
+
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<int> dist(pmin, pmax);
+
+    p.clear();
+    p.resize(n);
+    for (int i = 0; i < n; i++) {
+        p[i] = dist(gen);
+    }
+
+    maWynik = false;
+
+    std::cout << "Wygenerowano " << n << " zadan z czasami z zakresu ["
+              << pmin << ", " << pmax << "]." << std::endl;
+}
+
 // Wyświetlanie aktualnych danych
 void Menu::wyswietlDane() {
     if (m == 0 || p.empty()) {
@@ -148,14 +176,11 @@ void Menu::wyswietlDane() {
         return;
     }
 
-    std::cout << "Liczba maszyn (m): " << m << std::endl;
-    std::cout << "Liczba zadan (n): " << p.size() << std::endl;
-    std::cout << "Czasy zadan: [";
-    for (size_t i = 0; i < p.size(); i++) {
-        std::cout << p[i];
-        if (i < p.size() - 1) std::cout << ", ";
-    }
-    std::cout << "]" << std::endl;
+    std::cout << "Dane dla problemu PCmax:\n"; 
+    std::cout << m << std::endl;
+    for (size_t i = 0; i < p.size(); i++) 
+        std::cout << p[i] << std::endl;
+    
 }
 
 // Uruchomienie algorytmu zachłannego i wyświetlenie wyniku
