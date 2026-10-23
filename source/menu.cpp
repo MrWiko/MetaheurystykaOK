@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <iomanip>
 #include <sstream>
+#include <fstream>
 #include <map>
 #include <random>
 
@@ -9,6 +10,7 @@ const std::string HELP_MESSAGE = "Dostepne komendy:\n"
                              "Exit - Wyjscie z programu\n"
                              "Pomoc - Wyswietl liste komend\n"
                              "Wczytaj - Wczytaj dane problemu Pcmax z klawiatury\n"
+                             "WczytajPlik - Wczytaj dane z pliku\n"
                              "Generuj - Wygeneruj losowa instancje problemu Pcmax\n"
                              "Wyswietl - Wyswietl aktualne dane\n"
                              "Zachlanny - Uruchom algorytm zachlanny dla Pcmax\n"
@@ -110,6 +112,9 @@ int Menu::processIO() {
     else if (actionToken.token == "Wczytaj") {
         wczytajDane();
     }
+    else if (actionToken.token == "WczytajPlik") {
+        wczytajZPliku();
+    }
     else if (actionToken.token == "Generuj") {
         generujDane();
     }
@@ -144,6 +149,51 @@ void Menu::wczytajDane() {
     }
 
     std::cout << "Dane zostaly wczytane pomyslnie." << std::endl;
+}
+
+// Wczytywanie danych problemu Pcmax z pliku
+// Format pliku: pierwsza linia - liczba maszyn (m), kolejne linie - czasy zadań
+void Menu::wczytajZPliku() {
+    std::cout << "Podaj sciezke do pliku>";
+    if (messageParser->isTokenQueueEmpty()) {
+        messageParser->getInputStdin();
+    }
+    Token token = messageParser->getToken();
+    std::string sciezka = token.token;
+
+    std::ifstream plik(sciezka);
+    if (!plik.is_open()) {
+        std::cout << "Nie udalo sie otworzyc pliku: " << sciezka << std::endl;
+        return;
+    }
+
+    int wczytane_m;
+    if (!(plik >> wczytane_m) || wczytane_m <= 0) {
+        std::cout << "Blad: nieprawidlowa liczba maszyn w pliku." << std::endl;
+        return;
+    }
+
+    std::vector<int> wczytane_p;
+    int czas;
+    while (plik >> czas) {
+        if (czas <= 0) {
+            std::cout << "Blad: nieprawidlowy czas zadania (" << czas << ") w pliku." << std::endl;
+            return;
+        }
+        wczytane_p.push_back(czas);
+    }
+
+    if (wczytane_p.empty()) {
+        std::cout << "Blad: nie znaleziono zadnych zadan w pliku." << std::endl;
+        return;
+    }
+
+    m = wczytane_m;
+    p = wczytane_p;
+    maWynik = false;
+
+    std::cout << "Wczytano dane z pliku: " << m << " maszyn, "
+              << p.size() << " zadan." << std::endl;
 }
 
 // Generowanie losowej instancji problemu Pcmax

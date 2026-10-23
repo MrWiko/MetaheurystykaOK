@@ -22,6 +22,7 @@ class Menu {
 
         // Metody pomocnicze
         void wczytajDane();        // wczytywanie danych z klawiatury
+        void wczytajZPliku();      // wczytywanie danych z pliku
         void generujDane();        // generowanie losowej instancji problemu
         void wyswietlDane();       // wyświetlanie aktualnych danych
         void uruchomZachlanny();   // uruchomienie algorytmu zachłannego
