@@ -172,6 +172,11 @@ void Menu::wczytajZPliku() {
         std::cout << "Blad: nieprawidlowa liczba maszyn w pliku." << std::endl;
         return;
     }
+    int wczytane_z;
+        if (!(plik >> wczytane_z) || wczytane_z <= 0) {
+        std::cout << "Blad: nieprawidlowa liczba zadan w pliku." << std::endl;
+        return;
+    }
 
     std::vector<int> wczytane_p;
     int czas;
@@ -228,6 +233,7 @@ void Menu::wyswietlDane() {
 
     std::cout << "Dane dla problemu PCmax:\n"; 
     std::cout << m << std::endl;
+    std::cout << p.size() << std::endl;
     for (size_t i = 0; i < p.size(); i++) 
         std::cout << p[i] << std::endl;
     
